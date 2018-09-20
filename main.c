@@ -40,17 +40,13 @@ void fillPuzzle(){
     int i;
     int j;
 
-    for(i=0; i < 9; i++){
-        for(j=0; j < 9; j++){
-            num = fscanf(fp, " %d,", &digit );
-            sudokuPuzzle[i][j] = num;
-        }
-    }
     for (i = 0; i < 9; i++){
         for(j = 0; j < 9; j++){
+            fscanf(fp, " %d,", &sudokuPuzzle[i][j] );
             printf("%d ", sudokuPuzzle[i][j]);
-            printf("\n");
+            printf("\t");
         }
+        printf("\n");
     }
     fclose(fp);
 }
@@ -144,6 +140,8 @@ int main() {
     int k = 2;
     int l = 2;
     int i = 0;
+    int arraycount = 0;
+
 
     pthread_t tid[num_threads];
     pthread_attr_t attr[num_threads];
@@ -161,6 +159,8 @@ int main() {
         thrParam[index].rightColumn = i;
         pthread_create(&(tid[index]), &(attr[index]), *columnRunner, &(thrParam[index]));
         tid_column[i] = tid[index];
+        printf("Column %d successful", i);
+        printf("\n");
         index++;
     }
     //Row
@@ -170,67 +170,70 @@ int main() {
         thrParam[index].leftColumn = 0;
         thrParam[index].rightColumn = 8;
         pthread_create(&(tid[index]), &(attr[index]), *rowRunner, &(thrParam[index]));
-        tid_column[i] = tid[index];
+        tid_row[i] = tid[index];
+        printf("Row %d successful", i);
+        printf("\n");
         index++;
     }
     // 3x3
-    for( i = 0; i< 9; i + 3 ){
+    for( i = 0; i < 9; i = i + 3 ){
             int j;
-            k + 3;
-        for(  j = 0; j < 9; j + 3){
-            l + 3;
+        if ( k > 9 ){
+            printf("Breaking");
+            break;
+        }
+        for(  j = 0; j < 9; j= j + 3){
             thrParam[index].topRow = i;
             thrParam[index].bottomRow = k;
             thrParam[index].leftColumn = j;
             thrParam[index].rightColumn = l;
             pthread_create(&(tid[index]), &(attr[index]), *subRunner, &(thrParam[index]));
-            tid_3x3[i] = tid[index];
+            tid_3x3[arraycount] = tid[index];
+            printf("Subgrid %d successful", i);
+            printf("\n");
             index++;
+            arraycount++;
+            l = l + 3;
         }
         l = 0;
+        k = k + 3;
+
     }
     for ( i = 0; i < num_threads; i++){
        pthread_join(tid[i], NULL);
     }
-    for(i = 0; i < 9; i++){
-        if( columns[i] == FALSE ) {
+    for(i = 0; i < 9; i++) {
+        if (columns[i] == FALSE) {
             printf("Column: %d is invalid!", tid_column[i]);
             printf("\n");
             validCol = FALSE;
-            exit(0);
-        }
-        else{
+        } else {
             printf("Column: %d is valid!", tid_column[i]);
             printf("\n");
-            exit(0);
         }
-
-
+    }
+    for(i = 0; i <9; i++){
         if( rows[i] == FALSE ) {
             printf("Row: %d is invalid!", tid_row[i]);
             printf("\n");
             validRow = FALSE;
-            exit(0);
         }
         else{
             printf("Row: %d is valid!", tid_row[i]);
             printf("\n");
-            exit(0);
         }
-
-        if( threebythree[i] == FALSE ) {
+    }
+    for( i = 0; i < 9; i++) {
+        if (threebythree[i] == FALSE) {
             printf("Subgrid: %d is invalid", tid_3x3[i]);
             printf("\n");
             validSub = FALSE;
-            exit(0);
-        }
-        else{
+        } else {
             printf("Subgrid: %d is valid", tid_3x3[i]);
             printf("\n");
-            exit(0);
         }
-
     }
+
 
     if(validRow, validCol, validSub == FALSE){
         printf("Sudoku Solution is invalid");
