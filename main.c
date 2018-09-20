@@ -72,7 +72,7 @@ void *columnRunner(void *param) {
     for ( i = topRow; i <= bottomRow; i++) {
         for ( j = leftColumn; j <= rightColumn; j++) {
             if (sudokuPuzzle[i][j] > 0 || sudokuPuzzle[i][j] < 10)
-                columns[sudokuPuzzle[i][j]] = TRUE;
+                columns[sudokuPuzzle[i][j] - 1] = TRUE;
         }
     }
     self = pthread_self();
@@ -98,7 +98,7 @@ void *rowRunner(void *param) {
     for (i = topRow; i <= bottomRow; i++) {
         for ( j = leftColumn; j <= rightColumn; j++) {
             if (sudokuPuzzle[i][j] > 0 || sudokuPuzzle[i][j] < 10)
-                rows[sudokuPuzzle[i][j]] = TRUE;
+                rows[sudokuPuzzle[i][j] - 1 ] = TRUE;
         }
     }
     self = pthread_self();
@@ -124,7 +124,7 @@ void *subRunner(void *param) {
     for ( i = topRow; i <= bottomRow; i++) {
         for ( j = leftColumn; j <= rightColumn; j++) {
             if (sudokuPuzzle[i][j] > 0 || sudokuPuzzle[i][j] < 10)
-                threebythree[sudokuPuzzle[i][j]] = TRUE;
+                threebythree[sudokuPuzzle[i][j] - 1 ] = TRUE;
         }
     }
     self = pthread_self();
@@ -178,24 +178,20 @@ int main() {
     // 3x3
     for( i = 0; i < 9; i = i + 3 ){
             int j;
-        if ( k > 9 ){
-            printf("Breaking");
-            break;
-        }
-        for(  j = 0; j < 9; j= j + 3){
+        for(  j = 0; j < 9; j = j + 3){
             thrParam[index].topRow = i;
             thrParam[index].bottomRow = k;
             thrParam[index].leftColumn = j;
             thrParam[index].rightColumn = l;
             pthread_create(&(tid[index]), &(attr[index]), *subRunner, &(thrParam[index]));
             tid_3x3[arraycount] = tid[index];
-            printf("Subgrid %d successful", i);
+            printf("Subgrid %d successful", arraycount);
             printf("\n");
             index++;
             arraycount++;
             l = l + 3;
         }
-        l = 0;
+        l = 2;
         k = k + 3;
 
     }
